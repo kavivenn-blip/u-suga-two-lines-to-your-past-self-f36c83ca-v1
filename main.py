@@ -18,21 +18,33 @@ duration.
 
 import os
 
-ENTRY_TEXT = (
+# The two lines of the entry, kept as named constants so each line can be
+# checked on its own; together they are the whole judged text. The wording
+# is frozen: do not change either line without a new selection round.
+LINE_ONE = (
     "Send the apology to Marcus tonight, before the flight \u2014 the text "
-    "you keep rewriting says you were wrong about the money.\n"
+    "you keep rewriting says you were wrong about the money."
+)
+LINE_TWO = (
     "You never send it, and at his funeral eleven years later you finally "
     "say the words to his photograph instead of to him."
 )
+
+# Bounty gate: the entry must be 1-280 characters (code points).
+MAX_CHARS = 280
+
+ENTRY_TEXT = LINE_ONE + "\n" + LINE_TWO
 
 OUTPUT_PATH = "/output/entry.txt"
 
 
 def main():
-    # Self-check against the bounty gate: UTF-8 text of 1 to 280
-    # characters, not only white space. Fail loudly instead of
-    # writing an entry the sealed scorer would refuse.
-    if not 1 <= len(ENTRY_TEXT) <= 280 or not ENTRY_TEXT.strip():
+    # Explicit guard: the entry must fit the 280-code-point gate before
+    # anything is written. Fail loudly instead of writing an entry the
+    # sealed scorer would refuse.
+    assert len(ENTRY_TEXT) <= MAX_CHARS, "entry text exceeds 280 characters"
+    assert len(LINE_ONE) + 1 + len(LINE_TWO) == len(ENTRY_TEXT)
+    if not 1 <= len(ENTRY_TEXT) <= MAX_CHARS or not ENTRY_TEXT.strip():
         raise SystemExit("entry text fails the 1-280 character gate")
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8", newline="") as f:
